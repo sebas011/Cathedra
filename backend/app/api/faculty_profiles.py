@@ -3,8 +3,9 @@ from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
 from app.db import get_db
+from app.auth import require_admin
 from app.faculty_schemas import FacultyProfileCreate, FacultyProfileRead, FacultyProfileUpdate
-from app.models import FacultyProfile
+from app.models import FacultyProfile, LocalUser
 
 router = APIRouter(prefix="/faculty-profiles", tags=["Faculty Profile"])
 
@@ -27,16 +28,22 @@ def get_profile(profile_id: int, db: Session = Depends(get_db)) -> FacultyProfil
 
 @router.post("", response_model=FacultyProfileRead, status_code=status.HTTP_201_CREATED)
 def create_profile(payload: FacultyProfileCreate, db: Session = Depends(get_db)) -> FacultyProfile:
+    duplicate = db.scalar(select(FacultyProfile).where(FacultyProfile.name.ilike(payload.name.strip()), FacultyProfile.college == payload.college, FacultyProfile.department.ilike(payload.department.strip())))
+    if duplicate:
+        raise HTTPException(status_code=409, detail="A faculty profile with this name, college, and department already exists.")
     profile = FacultyProfile(**payload.model_dump()); db.add(profile); db.commit(); db.refresh(profile); return profile
 
 
 @router.put("/{profile_id}", response_model=FacultyProfileRead)
 def update_profile(profile_id: int, payload: FacultyProfileUpdate, db: Session = Depends(get_db)) -> FacultyProfile:
     profile = get_profile(profile_id, db)
+    duplicate = db.scalar(select(FacultyProfile).where(FacultyProfile.id != profile_id, FacultyProfile.name.ilike(payload.name.strip()), FacultyProfile.college == payload.college, FacultyProfile.department.ilike(payload.department.strip())))
+    if duplicate:
+        raise HTTPException(status_code=409, detail="A faculty profile with this name, college, and department already exists.")
     for field, value in payload.model_dump().items(): setattr(profile, field, value)
     db.commit(); db.refresh(profile); return profile
 
 
 @router.delete("/{profile_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_profile(profile_id: int, db: Session = Depends(get_db)) -> Response:
+def delete_profile(profile_id: int, db: Session = Depends(get_db), _: LocalUser = Depends(require_admin)) -> Response:
     profile = get_profile(profile_id, db); db.delete(profile); db.commit(); return Response(status_code=status.HTTP_204_NO_CONTENT)

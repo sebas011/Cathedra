@@ -3,7 +3,8 @@ from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session, selectinload
 
 from app.db import get_db
-from app.models import FsdpParticipation, Program, Scholar
+from app.auth import require_admin
+from app.models import FsdpParticipation, LocalUser, Program, Scholar
 from app.schemas import FsdpSummary, ParticipationRead, ProgramCreate, ProgramRead, ProgramUpdate, ScholarCreate, ScholarRead, ScholarUpdate
 
 router = APIRouter(prefix="/fsdp", tags=["FSDP"])
@@ -111,6 +112,8 @@ def get_scholar(scholar_id: int, db: Session = Depends(get_db)) -> ScholarRead:
 
 @router.post("", response_model=ScholarRead, status_code=status.HTTP_201_CREATED)
 def create_scholar(payload: ScholarCreate, db: Session = Depends(get_db)) -> ScholarRead:
+    if db.scalar(select(Scholar).where(Scholar.name.ilike(payload.name.strip()))):
+        raise HTTPException(status_code=409, detail="A scholar with this name already exists. Review the existing record before adding another.")
     scholar = Scholar(); db.add(scholar); apply_payload(db, scholar, payload); db.commit()
     return get_scholar(scholar.id, db)
 
@@ -124,7 +127,7 @@ def update_scholar(scholar_id: int, payload: ScholarUpdate, db: Session = Depend
 
 
 @router.delete("/{scholar_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_scholar(scholar_id: int, db: Session = Depends(get_db)) -> Response:
+def delete_scholar(scholar_id: int, db: Session = Depends(get_db), _: LocalUser = Depends(require_admin)) -> Response:
     scholar = db.get(Scholar, scholar_id)
     if scholar is None: raise HTTPException(status_code=404, detail="Scholar not found")
     db.delete(scholar); db.commit()

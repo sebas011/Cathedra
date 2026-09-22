@@ -33,6 +33,11 @@ def test_reuses_program_for_multiple_scholars(client) -> None:
     assert len(programs.json()) == 1
 
 
+def test_duplicate_scholar_name_is_rejected(client) -> None:
+    assert client.post("/api/v1/fsdp", json=payload("Maria Santos")).status_code == 201
+    assert client.post("/api/v1/fsdp", json=payload("Maria Santos")).status_code == 409
+
+
 def test_age_must_be_in_the_allowed_range(client) -> None:
     invalid = payload("Maria Santos")
     invalid["age"] = 17

@@ -3,7 +3,8 @@ from sqlalchemy import or_, select
 from sqlalchemy.orm import Session, selectinload
 
 from app.db import get_db
-from app.models import FacultyProfile, FacultyWorkload, TeachingAssignment
+from app.auth import require_admin
+from app.models import FacultyProfile, FacultyWorkload, LocalUser, TeachingAssignment
 from app.workload_schemas import (
     FacultyWorkloadCreate,
     FacultyWorkloadRead,
@@ -108,6 +109,8 @@ def get_workload(workload_id: int, db: Session = Depends(get_db)) -> FacultyWork
 @router.post("", response_model=FacultyWorkloadRead, status_code=status.HTTP_201_CREATED)
 def create_workload(payload: FacultyWorkloadCreate, db: Session = Depends(get_db)) -> FacultyWorkloadRead:
     get_faculty(db, payload.faculty_profile_id)
+    if db.scalar(select(FacultyWorkload).where(FacultyWorkload.faculty_profile_id == payload.faculty_profile_id, FacultyWorkload.academic_year == payload.academic_year.strip(), FacultyWorkload.term == payload.term.strip())):
+        raise HTTPException(status_code=409, detail="A workload already exists for this faculty member and period.")
     workload = FacultyWorkload()
     apply_payload(workload, payload)
     db.add(workload)
@@ -131,7 +134,7 @@ def update_workload(
 
 
 @router.delete("/{workload_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_workload(workload_id: int, db: Session = Depends(get_db)) -> Response:
+def delete_workload(workload_id: int, db: Session = Depends(get_db), _: LocalUser = Depends(require_admin)) -> Response:
     workload = db.get(FacultyWorkload, workload_id)
     if workload is None:
         raise HTTPException(status_code=404, detail="Workload record not found.")
