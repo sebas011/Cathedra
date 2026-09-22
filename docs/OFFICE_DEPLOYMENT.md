@@ -1,5 +1,7 @@
 # Cathedra Office Deployment Guide
 
+> **Current office setup:** use the desktop application and the plain-language [OFFICE_HANDOVER.md](OFFICE_HANDOVER.md). The PowerShell instructions below are retained only for developer troubleshooting; they are not required for normal office use.
+
 ## Purpose
 
 For a standard office installation, use the self-contained desktop release described in [DESKTOP_RELEASE.md](DESKTOP_RELEASE.md). The manual Python and Node.js steps below remain available for developer testing and local troubleshooting. Cathedra is separate from the previous ScholarDesk installation.
