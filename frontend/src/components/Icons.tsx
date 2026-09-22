@@ -7,6 +7,8 @@ export const DashboardIcon = (p: Props) => <Icon {...p}><rect x="3" y="3" width=
 export const FsdpIcon = (p: Props) => <Icon {...p}><path d="M4 6h16v14H4z"/><path d="M8 6V4h8v2"/><path d="M8 11h8M8 15h5"/></Icon>;
 export const ReviewIcon = (p: Props) => <Icon {...p}><path d="M5 4h11l3 3v13H5z"/><path d="M8 11h7M8 15h4"/><path d="m14 4 3 3"/></Icon>;
 export const WorkloadIcon = (p: Props) => <Icon {...p}><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></Icon>;
+export const DirectoryIcon = (p: Props) => <Icon {...p}><path d="M4 5h16v15H4z"/><path d="M8 9h8M8 13h8M8 17h5"/></Icon>;
+export const HistoryIcon = (p: Props) => <Icon {...p}><circle cx="12" cy="12" r="8"/><path d="M12 7v5l3 2M4 4l2 2"/></Icon>;
 export const ExpenseIcon = (p: Props) => <Icon {...p}><circle cx="12" cy="12" r="9"/><path d="M15 8.5c-.7-.7-1.7-1-3-1-1.7 0-3 .8-3 2s1 1.8 3 2.2 3 1 3 2.3-1.3 2.2-3 2.2c-1.4 0-2.5-.4-3.2-1.2M12 5.5v13"/></Icon>;
 export const BackupIcon = (p: Props) => <Icon {...p}><path d="M4 4h12l4 4v12H4z"/><path d="M8 4v6h8V4M8 20v-6h8v6"/></Icon>;
 export const SearchIcon = (p: Props) => <Icon {...p}><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></Icon>;
