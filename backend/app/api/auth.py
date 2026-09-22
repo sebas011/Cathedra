@@ -19,6 +19,15 @@ class UserCreate(Credentials):
     role: str = Field(pattern="^(admin|staff)$")
 
 
+class PasswordChange(BaseModel):
+    current_password: str = Field(min_length=1, max_length=200)
+    new_password: str = Field(min_length=10, max_length=200)
+
+
+class PasswordReset(BaseModel):
+    new_password: str = Field(min_length=10, max_length=200)
+
+
 def user_data(user: LocalUser) -> dict[str, object]:
     return {"id": user.id, "username": user.username, "role": user.role, "created_at": user.created_at}
 
@@ -78,3 +87,20 @@ def create_user(payload: UserCreate, db: Session = Depends(get_db), _: LocalUser
     db.commit()
     db.refresh(user)
     return user_data(user)
+
+
+@router.post("/change-password", status_code=status.HTTP_204_NO_CONTENT)
+def change_password(payload: PasswordChange, db: Session = Depends(get_db), user: LocalUser = Depends(require_signed_in)) -> None:
+    if not verify_password(payload.current_password, user.password_hash):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Your current password is incorrect.")
+    user.password_hash = password_hash(payload.new_password)
+    db.commit()
+
+
+@router.post("/users/{user_id}/reset-password", status_code=status.HTTP_204_NO_CONTENT)
+def reset_password(user_id: int, payload: PasswordReset, db: Session = Depends(get_db), _: LocalUser = Depends(require_admin)) -> None:
+    user = db.get(LocalUser, user_id)
+    if user is None:
+        raise HTTPException(status_code=404, detail="Local account not found.")
+    user.password_hash = password_hash(payload.new_password)
+    db.commit()

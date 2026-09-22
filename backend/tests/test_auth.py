@@ -14,3 +14,11 @@ def test_administrator_can_create_staff_account(client) -> None:
     history = client.get("/api/v1/activity")
     assert history.status_code == 200
     assert history.json()[0]["area"] == "Local Accounts"
+
+
+def test_user_can_change_password(client) -> None:
+    changed = client.post("/api/v1/auth/change-password", json={"current_password":"test-password-123","new_password":"new-test-password-123"})
+    assert changed.status_code == 204
+    client.headers.clear()
+    login = client.post("/api/v1/auth/login", json={"username":"test-admin","password":"new-test-password-123"})
+    assert login.status_code == 200

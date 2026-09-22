@@ -1,5 +1,5 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
-import { BackupIcon, DashboardIcon, ExpenseIcon, FsdpIcon, LogoutIcon, MenuIcon, ReviewIcon, WorkloadIcon } from "./Icons";
+import { BackupIcon, DashboardIcon, ExpenseIcon, FsdpIcon, LogoutIcon, MenuIcon, ReviewIcon, UserIcon, WorkloadIcon } from "./Icons";
 import { useState } from "react";
 import { clearSession, getCurrentUser, signOut } from "../api";
 
@@ -10,6 +10,7 @@ const navigation = [
   { to: "/faculty-profiles", label: "Faculty Profile", icon: WorkloadIcon },
   { to: "/workload", label: "Faculty Workload", icon: WorkloadIcon },
   { to: "/backup-export", label: "Backup & Export", icon: BackupIcon },
+  { to: "/account-security", label: "Account Security", icon: UserIcon },
   { to: "/activity", label: "Activity History", icon: ReviewIcon, adminOnly: true },
 ];
 
