@@ -48,6 +48,7 @@ export default function AppShell() {
           <button className="mobile-menu" onClick={() => setOpen(true)} aria-label="Open menu"><MenuIcon /></button>
           <div className="topbar-title" />
           <div className="account-box">
+            <button className="logout-button no-print" onClick={() => window.print()}><span>Print This Page</span></button>
             <div className="avatar">{user?.username.slice(0, 1).toUpperCase() || "A"}</div>
             <div className="account-copy"><strong>{user?.username || "Administrator"}</strong><span>{user?.role === "admin" ? "Administrator" : "Staff"}</span></div>
             <button className="logout-button" onClick={() => void logout()}><LogoutIcon /> <span>Logout</span></button>

@@ -59,10 +59,20 @@ Then open `http://127.0.0.1:8100/api/v1/health` and expect `{"status":"ok"}`. Op
 
 ## Updating Cathedra
 
+Use the guided release helper rather than replacing files one at a time:
+
 1. Close Cathedra on the office PC.
-2. Copy the new release folder into place.
-3. Keep `%LOCALAPPDATA%\Cathedra` unchanged so the current office database and backups remain available.
-4. Launch the new `Cathedra.exe`.
+2. Keep the incoming `Cathedra` release folder separate from the installed folder.
+3. On the release workstation or with an IT administrator, run:
+
+   ```powershell
+   .\desktop\update-release.ps1 -NewReleaseFolder 'C:\Incoming\Cathedra' -InstalledFolder 'C:\Cathedra'
+   ```
+
+4. The helper checks that the new folder is a valid Cathedra release, moves the old application folder to a timestamped `Cathedra.previous-...` folder, then copies the new version into place.
+5. Launch `C:\Cathedra\Cathedra.exe`.
+
+The helper never changes `%LOCALAPPDATA%\Cathedra`, so the office database and backups remain available. Keep the timestamped prior folder until the updated application has been checked. To roll back the application, close Cathedra, rename the current `Cathedra` folder, and rename the retained `Cathedra.previous-...` folder back to `Cathedra`.
 
 ## Important boundary
 

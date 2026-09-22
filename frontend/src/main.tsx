@@ -8,5 +8,6 @@ import "./fsdp-polish.css";
 import "./faculty-pages.css";
 import "./maintenance.css";
 import "./grant-review.css";
+import "./print.css";
 
 createRoot(document.getElementById("root")!).render(<StrictMode><BrowserRouter><App /></BrowserRouter></StrictMode>);
