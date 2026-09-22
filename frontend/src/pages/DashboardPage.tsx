@@ -23,7 +23,7 @@ export default function DashboardPage() {
       <section className="module-grid">
         <Link to="/fsdp" className="module-card ready"><div className="module-icon"><FsdpIcon /></div><div className="module-state">AVAILABLE</div><h3>Faculty & Staff Development Program</h3><p>Maintain FSDP beneficiaries, grants, progress status, requirements, and remarks.</p><span className="module-link">Open FSDP <ArrowIcon /></span></Link>
         <Link to="/workload" className="module-card ready"><div className="module-icon"><WorkloadIcon /></div><div className="module-state">AVAILABLE</div><h3>Faculty Workload</h3><p>Track weekly lecture and laboratory teaching hours by course and section.</p><span className="module-link">Open Faculty Workload <ArrowIcon /></span></Link>
-        <div className="module-card disabled"><div className="module-icon"><ExpenseIcon /></div><div className="module-state muted">PLANNED</div><h3>Expenses Projection</h3><p>Project salary and overload-related expenses using the same faculty and workload source data.</p><span className="module-link muted">Planned</span></div>
+        <Link to="/expenses" className="module-card ready"><div className="module-icon"><ExpenseIcon /></div><div className="module-state">AVAILABLE</div><h3>Expenses Projection</h3><p>Project salary and overload-related expenses using salary-grade rules and workload data.</p><span className="module-link">Open Expenses Projection <ArrowIcon /></span></Link>
       </section>
     </div>
   );

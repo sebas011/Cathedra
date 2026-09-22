@@ -120,3 +120,14 @@ class LocalSession(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey("local_users.id"), nullable=False, index=True)
     token_hash: Mapped[str] = mapped_column(String(128), nullable=False, unique=True, index=True)
     expires_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, index=True)
+
+
+class SalaryGradeRule(Base):
+    __tablename__ = "salary_grade_rules"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    salary_grade: Mapped[str] = mapped_column(String(30), nullable=False, unique=True, index=True)
+    monthly_salary: Mapped[float] = mapped_column(nullable=False)
+    standard_weekly_hours: Mapped[float] = mapped_column(nullable=False, default=18)
+    overload_hourly_rate: Mapped[float] = mapped_column(nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=func.now(), onupdate=func.now(), nullable=False)

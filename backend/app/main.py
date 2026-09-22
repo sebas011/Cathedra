@@ -11,6 +11,7 @@ from app.api.grant_review import router as grant_review_router
 from app.api.workload import router as workload_router
 from app.api.maintenance import router as maintenance_router
 from app.api.auth import router as auth_router
+from app.api.expenses import router as expenses_router
 from app.auth import require_signed_in
 from app.db import Base, engine
 
@@ -69,6 +70,7 @@ app.include_router(fsdp_router, prefix="/api/v1", dependencies=[Depends(require_
 app.include_router(faculty_profiles_router, prefix="/api/v1", dependencies=[Depends(require_signed_in)])
 app.include_router(workload_router, prefix="/api/v1", dependencies=[Depends(require_signed_in)])
 app.include_router(maintenance_router, prefix="/api/v1", dependencies=[Depends(require_signed_in)])
+app.include_router(expenses_router, prefix="/api/v1", dependencies=[Depends(require_signed_in)])
 
 _default_frontend_dist = Path(__file__).resolve().parents[2] / "frontend" / "dist"
 FRONTEND_DIST = Path(os.environ.get("CATHEDRA_FRONTEND_DIST", _default_frontend_dist)).resolve()
