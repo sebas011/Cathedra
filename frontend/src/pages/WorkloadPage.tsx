@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 import { deleteWorkload, getWorkloads } from "../api";
+import { useDebouncedValue } from "../hooks/useDebouncedValue";
 import type { FacultyWorkload } from "../types";
 
 const terms = ["First Semester", "Second Semester", "Summer"];
@@ -20,17 +21,18 @@ export default function WorkloadPage() {
   const [academicYear, setAcademicYear] = useState("");
   const [term, setTerm] = useState("");
   const [error, setError] = useState("");
+  const debouncedSearch = useDebouncedValue(search);
 
   const load = async () => {
     try {
       setError("");
-      setRecords(await getWorkloads(search, academicYear, term));
+      setRecords(await getWorkloads(debouncedSearch, academicYear, term));
     } catch (caughtError) {
       setError(caughtError instanceof Error ? caughtError.message : "Unable to load workloads.");
     }
   };
 
-  useEffect(() => { void load(); }, [search, academicYear, term]);
+  useEffect(() => { void load(); }, [debouncedSearch, academicYear, term]);
 
   const removeRecord = async (record: FacultyWorkload) => {
     if (!confirm(`Delete the workload for ${record.faculty_name}?`)) return;

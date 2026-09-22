@@ -1,6 +1,7 @@
 import { FormEvent, useEffect, useState } from "react";
 
 import { createFacultyProfile, deleteFacultyProfile, getFacultyProfiles, updateFacultyProfile } from "../api";
+import { useDebouncedValue } from "../hooks/useDebouncedValue";
 import type { FacultyProfile, FacultyProfilePayload } from "../types";
 
 const colleges = ["CAS", "COEd", "CBMA", "COE", "COF", "CIT", "CCS", "CCJ"] as const;
@@ -21,17 +22,18 @@ export default function FacultyProfilesPage() {
   const [editing, setEditing] = useState<number | null>(null);
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [error, setError] = useState("");
+  const debouncedSearch = useDebouncedValue(search);
 
   const load = async () => {
     try {
       setError("");
-      setProfiles(await getFacultyProfiles(search));
+      setProfiles(await getFacultyProfiles(debouncedSearch));
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Unable to load faculty profiles.");
     }
   };
 
-  useEffect(() => { void load(); }, [search]);
+  useEffect(() => { void load(); }, [debouncedSearch]);
 
   const closeEditor = () => {
     setIsEditorOpen(false);
