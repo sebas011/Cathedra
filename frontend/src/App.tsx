@@ -11,7 +11,6 @@ import WorkloadPage from "./pages/WorkloadPage";
 import FacultyProfilesPage from "./pages/FacultyProfilesPage";
 import BackupExportPage from "./pages/BackupExportPage";
 import GrantReviewPage from "./pages/GrantReviewPage";
-import ExpensesPage from "./pages/ExpensesPage";
 import { getSessionToken } from "./api";
 
 function ProtectedShell() { return getSessionToken() ? <AppShell /> : <Navigate to="/login" replace />; }
@@ -31,7 +30,7 @@ export default function App() {
       <Route path="/backup-export" element={<BackupExportPage />} />
       <Route path="/workload/new" element={<WorkloadFormPage />} />
       <Route path="/workload/:id/edit" element={<WorkloadFormPage />} />
-      <Route path="/expenses" element={<ExpensesPage />} />
+      <Route path="/expenses" element={<PlaceholderPage title="Expenses Projection" description="This module is paused while Cathedra is frozen. Its salary-grade projection work has been preserved for the next phase." />} />
     </Route>
     <Route path="*" element={<Navigate to="/" replace />} />
   </Routes>;

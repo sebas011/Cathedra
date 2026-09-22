@@ -13,6 +13,8 @@ from app.api.maintenance import router as maintenance_router
 from app.api.auth import router as auth_router
 from app.api.expenses import router as expenses_router
 from app.auth import require_signed_in
+
+EXPENSES_PROJECTION_ENABLED = False
 from app.db import Base, engine
 
 Base.metadata.create_all(bind=engine)
@@ -70,7 +72,8 @@ app.include_router(fsdp_router, prefix="/api/v1", dependencies=[Depends(require_
 app.include_router(faculty_profiles_router, prefix="/api/v1", dependencies=[Depends(require_signed_in)])
 app.include_router(workload_router, prefix="/api/v1", dependencies=[Depends(require_signed_in)])
 app.include_router(maintenance_router, prefix="/api/v1", dependencies=[Depends(require_signed_in)])
-app.include_router(expenses_router, prefix="/api/v1", dependencies=[Depends(require_signed_in)])
+if EXPENSES_PROJECTION_ENABLED:
+    app.include_router(expenses_router, prefix="/api/v1", dependencies=[Depends(require_signed_in)])
 
 _default_frontend_dist = Path(__file__).resolve().parents[2] / "frontend" / "dist"
 FRONTEND_DIST = Path(os.environ.get("CATHEDRA_FRONTEND_DIST", _default_frontend_dist)).resolve()
@@ -79,6 +82,8 @@ FRONTEND_INDEX = FRONTEND_DIST / "index.html"
 
 @app.get("/{path:path}", include_in_schema=False)
 def serve_frontend(path: str) -> FileResponse:
+    if path == "api" or path.startswith("api/"):
+        raise HTTPException(status_code=404, detail="API endpoint not found.")
     if not FRONTEND_INDEX.exists():
         raise HTTPException(status_code=404, detail="Frontend assets have not been built.")
     requested_file = (FRONTEND_DIST / path).resolve()

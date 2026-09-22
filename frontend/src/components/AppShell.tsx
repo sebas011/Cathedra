@@ -9,7 +9,6 @@ const navigation = [
   { to: "/fsdp/grant-review", label: "Grant Review", icon: ReviewIcon },
   { to: "/faculty-profiles", label: "Faculty Profile", icon: WorkloadIcon },
   { to: "/workload", label: "Faculty Workload", icon: WorkloadIcon },
-  { to: "/expenses", label: "Expenses Projection", icon: ExpenseIcon },
   { to: "/backup-export", label: "Backup & Export", icon: BackupIcon },
 ];
 
