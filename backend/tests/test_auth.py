@@ -11,3 +11,6 @@ def test_administrator_can_create_staff_account(client) -> None:
     )
     assert response.status_code == 201
     assert response.json()["role"] == "staff"
+    history = client.get("/api/v1/activity")
+    assert history.status_code == 200
+    assert history.json()[0]["area"] == "Local Accounts"

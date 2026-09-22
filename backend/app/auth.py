@@ -4,7 +4,7 @@ import hmac
 import secrets
 from datetime import UTC, datetime, timedelta
 
-from fastapi import Depends, Header, HTTPException, status
+from fastapi import Depends, Header, HTTPException, Request, status
 from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
@@ -59,7 +59,7 @@ def create_session(db: Session, user: LocalUser) -> str:
 
 
 def require_signed_in(
-    authorization: str | None = Header(default=None), db: Session = Depends(get_db)
+    request: Request, authorization: str | None = Header(default=None), db: Session = Depends(get_db)
 ) -> LocalUser:
     token = authorization.removeprefix("Bearer ").strip() if authorization else ""
     if not token:
@@ -75,6 +75,7 @@ def require_signed_in(
     user = db.get(LocalUser, session.user_id)
     if user is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Please sign in to continue.")
+    request.state.local_user = user
     return user
 
 

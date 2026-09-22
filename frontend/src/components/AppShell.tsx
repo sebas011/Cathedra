@@ -10,6 +10,7 @@ const navigation = [
   { to: "/faculty-profiles", label: "Faculty Profile", icon: WorkloadIcon },
   { to: "/workload", label: "Faculty Workload", icon: WorkloadIcon },
   { to: "/backup-export", label: "Backup & Export", icon: BackupIcon },
+  { to: "/activity", label: "Activity History", icon: ReviewIcon, adminOnly: true },
 ];
 
 export default function AppShell() {
@@ -32,7 +33,7 @@ export default function AppShell() {
         </div>
         <div className="nav-caption">OVERVIEW</div>
         <nav className="nav-list">
-          {navigation.map(({ to, label, icon: NavIcon }) => (
+          {navigation.filter((item) => !item.adminOnly || user?.role === "admin").map(({ to, label, icon: NavIcon }) => (
             <NavLink key={to} to={to} end={to === "/"} onClick={() => setOpen(false)} className={({isActive}) => `nav-item ${isActive ? "active" : ""}`}>
               <NavIcon className="nav-icon"/><span>{label}</span>
             </NavLink>

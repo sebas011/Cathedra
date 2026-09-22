@@ -12,10 +12,13 @@ from app.api.workload import router as workload_router
 from app.api.maintenance import router as maintenance_router
 from app.api.auth import router as auth_router
 from app.api.expenses import router as expenses_router
+from app.api.activity import router as activity_router
 from app.auth import require_signed_in
 
 EXPENSES_PROJECTION_ENABLED = False
 from app.db import Base, engine
+from app.db import SessionLocal
+from app.models import ActivityEvent
 
 Base.metadata.create_all(bind=engine)
 
@@ -61,6 +64,32 @@ app.add_middleware(
 )
 
 
+def activity_details(path: str, method: str) -> tuple[str, str] | None:
+    if not path.startswith("/api/v1/") or method not in {"POST", "PUT", "DELETE"}:
+        return None
+    if path.startswith("/api/v1/auth/login") or path.startswith("/api/v1/auth/logout") or path.startswith("/api/v1/auth/setup"):
+        return None
+    area = path.removeprefix("/api/v1/").split("/", 1)[0]
+    labels = {"fsdp": "FSDP", "faculty-profiles": "Faculty Profiles", "workloads": "Faculty Workload", "maintenance": "Backup & Export", "auth": "Local Accounts", "expenses": "Expenses Projection"}
+    verbs = {"POST": "Created or started", "PUT": "Updated", "DELETE": "Deleted"}
+    return labels.get(area, area.replace("-", " ").title()), f"{verbs[method]} {labels.get(area, area.replace('-', ' ').title())}"
+
+
+@app.middleware("http")
+async def record_activity(request, call_next):
+    response = await call_next(request)
+    detail = activity_details(request.url.path, request.method)
+    user = getattr(request.state, "local_user", None)
+    if detail and user is not None and response.status_code < 400:
+        db = SessionLocal()
+        try:
+            db.add(ActivityEvent(user_id=user.id, username=user.username, area=detail[0], action=detail[1]))
+            db.commit()
+        finally:
+            db.close()
+    return response
+
+
 @app.get("/api/v1/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
@@ -74,6 +103,7 @@ app.include_router(workload_router, prefix="/api/v1", dependencies=[Depends(requ
 app.include_router(maintenance_router, prefix="/api/v1", dependencies=[Depends(require_signed_in)])
 if EXPENSES_PROJECTION_ENABLED:
     app.include_router(expenses_router, prefix="/api/v1", dependencies=[Depends(require_signed_in)])
+app.include_router(activity_router, prefix="/api/v1", dependencies=[Depends(require_signed_in)])
 
 _default_frontend_dist = Path(__file__).resolve().parents[2] / "frontend" / "dist"
 FRONTEND_DIST = Path(os.environ.get("CATHEDRA_FRONTEND_DIST", _default_frontend_dist)).resolve()

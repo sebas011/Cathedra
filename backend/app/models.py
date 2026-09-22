@@ -131,3 +131,14 @@ class SalaryGradeRule(Base):
     standard_weekly_hours: Mapped[float] = mapped_column(nullable=False, default=18)
     overload_hourly_rate: Mapped[float] = mapped_column(nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=func.now(), onupdate=func.now(), nullable=False)
+
+
+class ActivityEvent(Base):
+    __tablename__ = "activity_events"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int | None] = mapped_column(Integer, nullable=True, index=True)
+    username: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    action: Mapped[str] = mapped_column(String(160), nullable=False)
+    area: Mapped[str] = mapped_column(String(80), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now(), nullable=False, index=True)

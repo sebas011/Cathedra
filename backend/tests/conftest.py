@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
 
 from app.db import Base, get_db
+import app.main as main
 from app.main import app
 
 
@@ -28,6 +29,8 @@ def client() -> Generator[TestClient, None, None]:
             db.close()
 
     app.dependency_overrides[get_db] = override_get_db
+    original_session_local = main.SessionLocal
+    main.SessionLocal = TestingSession
     try:
         with TestClient(app) as test_client:
             setup = test_client.post(
@@ -37,5 +40,6 @@ def client() -> Generator[TestClient, None, None]:
             test_client.headers.update({"Authorization": f"Bearer {setup.json()['token']}"})
             yield test_client
     finally:
+        main.SessionLocal = original_session_local
         app.dependency_overrides.clear()
         Base.metadata.drop_all(bind=engine)
