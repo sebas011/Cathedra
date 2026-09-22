@@ -19,6 +19,17 @@ def list_profiles(search: str = Query(default="", max_length=200), db: Session =
     return list(db.scalars(statement.order_by(FacultyProfile.name)).all())
 
 
+@router.get("/page")
+def paged_profiles(search: str = Query(default="", max_length=200), page: int = Query(default=1, ge=1), page_size: int = Query(default=50, ge=10, le=100), db: Session = Depends(get_db)) -> dict[str, object]:
+    statement = select(FacultyProfile)
+    if search.strip():
+        term = f"%{search.strip()}%"
+        statement = statement.where(or_(FacultyProfile.name.ilike(term), FacultyProfile.rank.ilike(term), FacultyProfile.college.ilike(term), FacultyProfile.department.ilike(term)))
+    total = db.scalar(select(__import__('sqlalchemy').func.count()).select_from(statement.order_by(None).subquery())) or 0
+    items = list(db.scalars(statement.order_by(FacultyProfile.name).offset((page - 1) * page_size).limit(page_size)).all())
+    return {"items": items, "total": total, "page": page, "page_size": page_size}
+
+
 @router.get("/{profile_id}", response_model=FacultyProfileRead)
 def get_profile(profile_id: int, db: Session = Depends(get_db)) -> FacultyProfile:
     profile = db.get(FacultyProfile, profile_id)

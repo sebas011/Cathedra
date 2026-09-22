@@ -22,18 +22,20 @@ export default function FacultyProfilesPage() {
   const [editing, setEditing] = useState<number | null>(null);
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [error, setError] = useState("");
+  const [page, setPage] = useState(1); const [total, setTotal] = useState(0);
   const debouncedSearch = useDebouncedValue(search);
 
   const load = async () => {
     try {
       setError("");
-      setProfiles(await getFacultyProfiles(debouncedSearch));
+      const result = await getFacultyProfiles(debouncedSearch, page); setProfiles(result.items); setTotal(result.total);
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Unable to load faculty profiles.");
     }
   };
 
-  useEffect(() => { void load(); }, [debouncedSearch]);
+  useEffect(() => { setPage(1); }, [debouncedSearch]);
+  useEffect(() => { void load(); }, [debouncedSearch, page]);
 
   const closeEditor = () => {
     setIsEditorOpen(false);
@@ -110,7 +112,7 @@ export default function FacultyProfilesPage() {
 
       <section className="data-card directory-table-card">
         <div className="toolbar directory-toolbar"><div className="search-wrap"><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search name, rank, college, or department" aria-label="Search faculty profiles" /></div>{search && <button className="btn secondary" type="button" onClick={() => setSearch("")}>Clear search</button>}</div>
-        <div className="table-meta">{profiles.length} {profiles.length === 1 ? "profile" : "profiles"} shown</div>
+        <div className="table-meta">{total} profiles · Page {page} of {Math.max(1, Math.ceil(total / 50))}</div>
         <div className="table-scroll"><table><thead><tr><th>Faculty member</th><th>Appointment</th><th>College & department</th><th>Source</th><th className="right">Actions</th></tr></thead><tbody>
           {profiles.length === 0 ? <tr><td colSpan={5} className="empty-table"><strong>No faculty profiles found.</strong><span>{search ? "Try a broader search term." : "Add a faculty member to begin the directory."}</span></td></tr> : profiles.map((profile) => <tr key={profile.id}>
             <td><div className="person-cell"><strong>{profile.name}</strong><span>{profile.employment_status}</span></div></td>
@@ -119,7 +121,7 @@ export default function FacultyProfilesPage() {
             <td><SourceBadge dataSource={profile.data_source} /></td>
             <td className="right"><div className="action-group"><button className="btn secondary" type="button" onClick={() => editProfile(profile)}>Edit</button><button className="btn secondary" type="button" onClick={() => void removeProfile(profile)}>Delete</button></div></td>
           </tr>)}
-        </tbody></table></div>
+        </tbody></table></div><div className="form-actions no-print"><button className="btn secondary" disabled={page===1} onClick={()=>setPage(page-1)}>Previous</button><button className="btn secondary" disabled={page>=Math.max(1,Math.ceil(total/50))} onClick={()=>setPage(page+1)}>Next</button></div>
       </section>
     </div>
   );

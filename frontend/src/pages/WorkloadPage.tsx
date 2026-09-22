@@ -21,18 +21,20 @@ export default function WorkloadPage() {
   const [academicYear, setAcademicYear] = useState("");
   const [term, setTerm] = useState("");
   const [error, setError] = useState("");
+  const [page, setPage] = useState(1); const [total, setTotal] = useState(0);
   const debouncedSearch = useDebouncedValue(search);
 
   const load = async () => {
     try {
       setError("");
-      setRecords(await getWorkloads(debouncedSearch, academicYear, term));
+      const result = await getWorkloads(debouncedSearch, academicYear, term, page); setRecords(result.items); setTotal(result.total);
     } catch (caughtError) {
       setError(caughtError instanceof Error ? caughtError.message : "Unable to load workloads.");
     }
   };
 
-  useEffect(() => { void load(); }, [debouncedSearch, academicYear, term]);
+  useEffect(() => { setPage(1); }, [debouncedSearch, academicYear, term]);
+  useEffect(() => { void load(); }, [debouncedSearch, academicYear, term, page]);
 
   const removeRecord = async (record: FacultyWorkload) => {
     if (!confirm(`Delete the workload for ${record.faculty_name}?`)) return;
@@ -56,7 +58,7 @@ export default function WorkloadPage() {
       <section className="metric-grid four" aria-label="Workload summary"><div className="metric-card"><span>Workload records</span><strong>{records.length}</strong></div><div className="metric-card"><span>Teaching assignments</span><strong>{assignmentCount}</strong></div><div className="metric-card"><span>Lecture hours / week</span><strong>{hours(lectureHours)}</strong></div><div className="metric-card"><span>Total hours / week</span><strong>{hours(totalWeeklyHours)}</strong></div></section>
       <section className="data-card workload-table-card">
         <div className="toolbar workload-toolbar"><div className="search-wrap"><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search faculty, department, rank, or term" aria-label="Search faculty workloads" /></div><input value={academicYear} onChange={(event) => setAcademicYear(event.target.value)} placeholder="Academic year" aria-label="Filter by academic year" /><select value={term} onChange={(event) => setTerm(event.target.value)} aria-label="Filter by term"><option value="">All terms</option>{terms.map((item) => <option key={item} value={item}>{item}</option>)}</select><button className="btn secondary" type="button" onClick={() => { setSearch(""); setAcademicYear(""); setTerm(""); }}>Reset</button></div>
-        <div className="table-meta">{records.length} {records.length === 1 ? "workload" : "workloads"} shown</div>
+        <div className="table-meta">{total} workloads · Page {page} of {Math.max(1, Math.ceil(total / 50))}</div>
         <div className="table-scroll"><table><thead><tr><th>Faculty member</th><th>Period</th><th>Courses</th><th>Lecture / week</th><th>Laboratory / week</th><th>Total / week</th><th>Source</th><th className="right">Actions</th></tr></thead><tbody>
           {records.length === 0 ? <tr><td colSpan={8} className="empty-table"><strong>No workload records found.</strong><span>{search || academicYear || term ? "Try changing or clearing the filters." : "Add a weekly teaching workload to get started."}</span></td></tr> : records.map((record) => <tr key={record.id}>
             <td><div className="person-cell"><strong>{record.faculty_name}</strong><span>{record.rank || "Faculty"}{record.department ? ` · ${record.department}` : ""}</span></div></td>
@@ -65,7 +67,7 @@ export default function WorkloadPage() {
             <td><SourceBadge dataSource={record.data_source} /></td>
             <td className="right"><div className="action-group"><Link className="btn secondary" to={`/workload/${record.id}/edit`}>Edit</Link><button className="btn secondary" type="button" onClick={() => void removeRecord(record)}>Delete</button></div></td>
           </tr>)}
-        </tbody></table></div>
+        </tbody></table></div><div className="form-actions no-print"><button className="btn secondary" disabled={page===1} onClick={()=>setPage(page-1)}>Previous</button><button className="btn secondary" disabled={page>=Math.max(1,Math.ceil(total/50))} onClick={()=>setPage(page+1)}>Next</button></div>
       </section>
     </div>
   );
