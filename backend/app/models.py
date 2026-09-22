@@ -8,6 +8,7 @@ from app.db import Base
 
 class Scholar(Base):
     __tablename__ = "scholars"
+    __table_args__ = (Index("uq_scholars_name", "name", unique=True),)
 
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(200), nullable=False, index=True)
@@ -30,6 +31,7 @@ class Scholar(Base):
 
 class FacultyProfile(Base):
     __tablename__ = "faculty_profiles"
+    __table_args__ = (Index("uq_faculty_profiles_identity", "name", "college", "department", unique=True),)
 
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(200), nullable=False, index=True)
@@ -78,7 +80,7 @@ class FsdpParticipation(Base):
 
 class FacultyWorkload(Base):
     __tablename__ = "faculty_workloads"
-    __table_args__ = (Index("ix_faculty_workloads_period_faculty", "academic_year", "term", "faculty_profile_id"),)
+    __table_args__ = (Index("ix_faculty_workloads_period_faculty", "academic_year", "term", "faculty_profile_id"), Index("uq_faculty_workloads_period", "faculty_profile_id", "academic_year", "term", unique=True))
 
     id: Mapped[int] = mapped_column(primary_key=True)
     faculty_profile_id: Mapped[int] = mapped_column(ForeignKey("faculty_profiles.id"), nullable=False, index=True)

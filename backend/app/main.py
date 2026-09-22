@@ -57,6 +57,9 @@ with engine.begin() as connection:
     connection.execute(text("CREATE INDEX IF NOT EXISTS ix_fsdp_participations_status_scholar ON fsdp_participations (status, scholar_id)"))
     connection.execute(text("CREATE INDEX IF NOT EXISTS ix_faculty_workloads_period_faculty ON faculty_workloads (academic_year, term, faculty_profile_id)"))
     connection.execute(text("CREATE INDEX IF NOT EXISTS ix_activity_events_created_id ON activity_events (created_at, id)"))
+    connection.execute(text("CREATE UNIQUE INDEX IF NOT EXISTS uq_scholars_name ON scholars (name)"))
+    connection.execute(text("CREATE UNIQUE INDEX IF NOT EXISTS uq_faculty_profiles_identity ON faculty_profiles (name, college, department)"))
+    connection.execute(text("CREATE UNIQUE INDEX IF NOT EXISTS uq_faculty_workloads_period ON faculty_workloads (faculty_profile_id, academic_year, term)"))
 
 app = FastAPI(title="Cathedra R1 API", version="0.1.0")
 
