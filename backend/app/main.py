@@ -52,6 +52,11 @@ with engine.begin() as connection:
             "AND scholars.data_source = 'Imported from ScholarDesk')"
         )
     )
+    # These indexes also apply to offices upgrading from an earlier Cathedra
+    # release, where create_all() does not modify existing tables.
+    connection.execute(text("CREATE INDEX IF NOT EXISTS ix_fsdp_participations_status_scholar ON fsdp_participations (status, scholar_id)"))
+    connection.execute(text("CREATE INDEX IF NOT EXISTS ix_faculty_workloads_period_faculty ON faculty_workloads (academic_year, term, faculty_profile_id)"))
+    connection.execute(text("CREATE INDEX IF NOT EXISTS ix_activity_events_created_id ON activity_events (created_at, id)"))
 
 app = FastAPI(title="Cathedra R1 API", version="0.1.0")
 

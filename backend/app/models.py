@@ -1,6 +1,6 @@
 from datetime import date, datetime
 
-from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Integer, String, Text, func
+from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Index, Integer, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db import Base
@@ -56,6 +56,7 @@ class Program(Base):
 
 class FsdpParticipation(Base):
     __tablename__ = "fsdp_participations"
+    __table_args__ = (Index("ix_fsdp_participations_status_scholar", "status", "scholar_id"),)
 
     id: Mapped[int] = mapped_column(primary_key=True)
     scholar_id: Mapped[int] = mapped_column(ForeignKey("scholars.id"), nullable=False, index=True)
@@ -77,6 +78,7 @@ class FsdpParticipation(Base):
 
 class FacultyWorkload(Base):
     __tablename__ = "faculty_workloads"
+    __table_args__ = (Index("ix_faculty_workloads_period_faculty", "academic_year", "term", "faculty_profile_id"),)
 
     id: Mapped[int] = mapped_column(primary_key=True)
     faculty_profile_id: Mapped[int] = mapped_column(ForeignKey("faculty_profiles.id"), nullable=False, index=True)
@@ -135,6 +137,7 @@ class SalaryGradeRule(Base):
 
 class ActivityEvent(Base):
     __tablename__ = "activity_events"
+    __table_args__ = (Index("ix_activity_events_created_id", "created_at", "id"),)
 
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int | None] = mapped_column(Integer, nullable=True, index=True)
