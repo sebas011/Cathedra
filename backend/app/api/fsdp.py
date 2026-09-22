@@ -20,6 +20,16 @@ def options():
     return [selectinload(Scholar.participations).selectinload(FsdpParticipation.program)]
 
 
+def scholar_statement(search: str, status_filter: str):
+    statement = select(Scholar).options(*options()).distinct()
+    if search.strip():
+        term = f"%{search.strip()}%"
+        statement = statement.outerjoin(Scholar.participations).outerjoin(FsdpParticipation.program).where(or_(Scholar.name.ilike(term), Scholar.department.ilike(term), Scholar.rank.ilike(term), Program.name.ilike(term), Program.delivering_hei.ilike(term)))
+    if status_filter.strip():
+        statement = statement.join(Scholar.participations).where(FsdpParticipation.status == status_filter.strip())
+    return statement
+
+
 def read_scholar(scholar: Scholar) -> ScholarRead:
     return ScholarRead(id=scholar.id, name=scholar.name, age=scholar.age, previous_degree=scholar.previous_degree, missing_requirements=scholar.missing_requirements, department=scholar.department, rank=scholar.rank, personnel_type=personnel_type(scholar.rank), tenure=scholar.tenure, data_source=scholar.data_source, created_at=scholar.created_at, updated_at=scholar.updated_at, participations=[ParticipationRead(id=item.id, program_id=item.program_id, name=item.program.name, delivering_hei=item.program.delivering_hei, description=item.program.description, start_date=item.start_date, end_date=item.end_date, grant_type=item.grant_type, grant_other=item.grant_other, status=item.status, extension=item.extension, remarks=item.remarks) for item in scholar.participations])
 
@@ -87,13 +97,23 @@ def delete_program(program_id: int, db: Session = Depends(get_db)) -> Response:
 
 @router.get("", response_model=list[ScholarRead])
 def list_scholars(search: str = Query(default="", max_length=200), status_filter: str = Query(default="", alias="status", max_length=50), db: Session = Depends(get_db)) -> list[ScholarRead]:
-    statement = select(Scholar).options(*options()).distinct()
-    if search.strip():
-        term = f"%{search.strip()}%"
-        statement = statement.outerjoin(Scholar.participations).outerjoin(FsdpParticipation.program).where(or_(Scholar.name.ilike(term), Scholar.department.ilike(term), Scholar.rank.ilike(term), Program.name.ilike(term), Program.delivering_hei.ilike(term)))
-    if status_filter.strip():
-        statement = statement.join(Scholar.participations).where(FsdpParticipation.status == status_filter.strip())
+    statement = scholar_statement(search, status_filter)
     return [read_scholar(scholar) for scholar in db.scalars(statement.order_by(Scholar.name, Scholar.id)).unique().all()]
+
+
+@router.get("/page")
+def paged_scholars(
+    search: str = Query(default="", max_length=200),
+    status_filter: str = Query(default="", alias="status", max_length=50),
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=50, ge=10, le=100),
+    db: Session = Depends(get_db),
+) -> dict[str, object]:
+    statement = scholar_statement(search, status_filter)
+    count_statement = statement.with_only_columns(Scholar.id).order_by(None).subquery()
+    total = db.scalar(select(func.count()).select_from(count_statement)) or 0
+    records = db.scalars(statement.order_by(Scholar.name, Scholar.id).offset((page - 1) * page_size).limit(page_size)).unique().all()
+    return {"items": [read_scholar(scholar) for scholar in records], "total": total, "page": page, "page_size": page_size}
 
 
 @router.get("/summary", response_model=FsdpSummary)

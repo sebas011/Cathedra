@@ -20,4 +20,5 @@ export interface SalaryGradeRule { id:number; salary_grade:string; monthly_salar
 export interface ExpenseProjectionRecord { faculty_id:number; faculty_name:string; department:string; salary_grade:string|null; weekly_hours:number; standard_weekly_hours:number|null; overload_hours:number; regular_cost:number; overload_cost:number; projected_cost:number; rule_available:boolean; }
 export interface ExpenseProjection { academic_year:string; term:string; teaching_weeks:number; salary_months:number; records:ExpenseProjectionRecord[]; total_regular_cost:number; total_overload_cost:number; total_projected_cost:number; missing_rules:number; }
 export interface ActivityEvent { id:number; username:string|null; action:string; area:string; created_at:string; }
+export interface PagedResult<T> { items:T[]; total:number; page:number; page_size:number; }
 export interface GrantReview { participation_id:number; scholar_id:number; scholar_name:string; department:string|null; program_name:string; current_grant_type:GrantType|null; original_grant_label:string; standardized_at:string|null; standardization_note:string|null; }
