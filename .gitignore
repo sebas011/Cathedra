@@ -1,0 +1,24 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.venv/
+node_modules/
+dist/
+*.db
+*.db-wal
+*.db-shm
+.env
+.DS_Store
+Thumbs.db
+
+# Office data, recovery copies, and generated desktop releases must never be public.
+release-backups/
+desktop/release/
+desktop/build/
+desktop/launcher-*/
+desktop/diagnostic-*.log
+desktop/*.log
+.pytest_cache/
+.pytest-temp-*/
+frontend/tsconfig.tsbuildinfo
