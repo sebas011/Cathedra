@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
-import { deleteWorkload, getWorkloads } from "../api";
+import { deleteWorkload, getCurrentUser, getWorkloads } from "../api";
 import { useDebouncedValue } from "../hooks/useDebouncedValue";
 import type { FacultyWorkload } from "../types";
 
@@ -16,6 +16,7 @@ function SourceBadge({ dataSource }: { dataSource?: string }) {
 }
 
 export default function WorkloadPage() {
+  const canDelete = getCurrentUser()?.role === "admin";
   const [records, setRecords] = useState<FacultyWorkload[]>([]);
   const [search, setSearch] = useState("");
   const [academicYear, setAcademicYear] = useState("");
@@ -65,7 +66,7 @@ export default function WorkloadPage() {
             <td><div className="person-cell"><strong>{record.academic_year}</strong><span>{record.term}</span></div></td>
             <td>{record.assignments.length}</td><td>{hours(record.total_lecture_hours)}</td><td>{hours(record.total_laboratory_hours)}</td><td><strong>{hours(record.total_weekly_hours)}</strong></td>
             <td><SourceBadge dataSource={record.data_source} /></td>
-            <td className="right"><div className="action-group"><Link className="btn secondary" to={`/workload/${record.id}/edit`}>Edit</Link><button className="btn secondary" type="button" onClick={() => void removeRecord(record)}>Delete</button></div></td>
+            <td className="right"><div className="action-group"><Link className="btn secondary" to={`/workload/${record.id}/edit`}>Edit</Link>{canDelete && <button className="btn secondary" type="button" onClick={() => void removeRecord(record)}>Delete</button>}</div></td>
           </tr>)}
         </tbody></table></div><div className="form-actions no-print"><button className="btn secondary" disabled={page===1} onClick={()=>setPage(page-1)}>Previous</button><button className="btn secondary" disabled={page>=Math.max(1,Math.ceil(total/50))} onClick={()=>setPage(page+1)}>Next</button></div>
       </section>

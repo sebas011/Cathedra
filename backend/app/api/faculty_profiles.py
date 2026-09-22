@@ -27,7 +27,7 @@ def paged_profiles(search: str = Query(default="", max_length=200), page: int = 
         statement = statement.where(or_(FacultyProfile.name.ilike(term), FacultyProfile.rank.ilike(term), FacultyProfile.college.ilike(term), FacultyProfile.department.ilike(term)))
     total = db.scalar(select(__import__('sqlalchemy').func.count()).select_from(statement.order_by(None).subquery())) or 0
     items = list(db.scalars(statement.order_by(FacultyProfile.name).offset((page - 1) * page_size).limit(page_size)).all())
-    return {"items": items, "total": total, "page": page, "page_size": page_size}
+    return {"items": [FacultyProfileRead.model_validate(item).model_dump(mode="json") for item in items], "total": total, "page": page, "page_size": page_size}
 
 
 @router.get("/{profile_id}", response_model=FacultyProfileRead)

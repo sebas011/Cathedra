@@ -1,6 +1,6 @@
 import { FormEvent, useEffect, useState } from "react";
 
-import { createFacultyProfile, deleteFacultyProfile, getFacultyProfiles, updateFacultyProfile } from "../api";
+import { createFacultyProfile, deleteFacultyProfile, getCurrentUser, getFacultyProfiles, updateFacultyProfile } from "../api";
 import { useDebouncedValue } from "../hooks/useDebouncedValue";
 import type { FacultyProfile, FacultyProfilePayload } from "../types";
 
@@ -16,6 +16,7 @@ function SourceBadge({ dataSource }: { dataSource?: string }) {
 }
 
 export default function FacultyProfilesPage() {
+  const canDelete = getCurrentUser()?.role === "admin";
   const [profiles, setProfiles] = useState<FacultyProfile[]>([]);
   const [search, setSearch] = useState("");
   const [form, setForm] = useState<FacultyProfilePayload>(blankProfile);
@@ -119,7 +120,7 @@ export default function FacultyProfilesPage() {
             <td><div className="person-cell"><strong>{profile.rank}</strong><span>{profile.salary_grade || "No salary grade"}</span></div></td>
             <td><div className="person-cell"><strong>{profile.college}</strong><span>{profile.department}</span></div></td>
             <td><SourceBadge dataSource={profile.data_source} /></td>
-            <td className="right"><div className="action-group"><button className="btn secondary" type="button" onClick={() => editProfile(profile)}>Edit</button><button className="btn secondary" type="button" onClick={() => void removeProfile(profile)}>Delete</button></div></td>
+            <td className="right"><div className="action-group"><button className="btn secondary" type="button" onClick={() => editProfile(profile)}>Edit</button>{canDelete && <button className="btn secondary" type="button" onClick={() => void removeProfile(profile)}>Delete</button>}</div></td>
           </tr>)}
         </tbody></table></div><div className="form-actions no-print"><button className="btn secondary" disabled={page===1} onClick={()=>setPage(page-1)}>Previous</button><button className="btn secondary" disabled={page>=Math.max(1,Math.ceil(total/50))} onClick={()=>setPage(page+1)}>Next</button></div>
       </section>
