@@ -108,7 +108,7 @@ def paged_workloads(search: str = Query(default="", max_length=200), academic_ye
 
 @router.get("/summary")
 def workload_summary(db: Session = Depends(get_db)) -> dict[str, float | int]:
-    totals = db.execute(select(func.count(FacultyWorkload.id), func.count(TeachingAssignment.id), func.coalesce(func.sum(TeachingAssignment.lecture_hours), 0), func.coalesce(func.sum(TeachingAssignment.laboratory_hours), 0)).select_from(FacultyWorkload).outerjoin(TeachingAssignment)).one()
+    totals = db.execute(select(func.count(func.distinct(FacultyWorkload.id)), func.count(TeachingAssignment.id), func.coalesce(func.sum(TeachingAssignment.lecture_hours), 0), func.coalesce(func.sum(TeachingAssignment.laboratory_hours), 0)).select_from(FacultyWorkload).outerjoin(TeachingAssignment)).one()
     return {"workloads": totals[0] or 0, "assignments": totals[1] or 0, "lecture_hours": float(totals[2] or 0), "laboratory_hours": float(totals[3] or 0), "weekly_hours": float((totals[2] or 0) + (totals[3] or 0))}
 
 
