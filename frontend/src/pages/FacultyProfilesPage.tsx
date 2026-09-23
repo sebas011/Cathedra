@@ -118,7 +118,7 @@ export default function FacultyProfilesPage() {
         <div className="table-scroll"><table><thead><tr><th>Faculty member</th><th>Appointment</th><th>College & department</th><th>Source</th><th className="right">Actions</th></tr></thead><tbody>
           {profiles.length === 0 ? <tr><td colSpan={5} className="empty-table"><strong>No faculty profiles found.</strong><span>{search ? "Try a broader search term." : "Add a faculty member to begin the directory."}</span></td></tr> : profiles.map((profile) => <tr key={profile.id}>
             <td><div className="person-cell"><strong>{profile.name}</strong><span>{profile.employment_status}</span></div></td>
-            <td><div className="person-cell"><strong>{profile.rank}</strong><span>{profile.salary_grade || "No salary grade"}{profile.monthly_salary !== null ? ` · ₱${profile.monthly_salary.toLocaleString("en-PH", { minimumFractionDigits: 2 })}` : ""}</span></div></td>
+            <td><div className="person-cell"><strong>{profile.rank}</strong><span>{profile.salary_grade || "No salary grade"}{profile.monthly_salary != null ? ` · ₱${profile.monthly_salary.toLocaleString("en-PH", { minimumFractionDigits: 2 })}` : ""}</span></div></td>
             <td><div className="person-cell"><strong>{profile.college}</strong><span>{profile.department}</span></div></td>
             <td><SourceBadge dataSource={profile.data_source} /></td>
             <td className="right"><div className="action-group"><button className="btn secondary" type="button" onClick={() => editProfile(profile)}>Edit</button>{canDelete && <button className="btn secondary" type="button" onClick={() => void removeProfile(profile)}>Delete</button>}</div></td>
