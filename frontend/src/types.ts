@@ -11,7 +11,7 @@ export interface FacultyProfilePayload { name:string; rank:string; employment_st
 export interface FacultyProfile extends FacultyProfilePayload { id:number; data_source?:string; created_at:string; updated_at:string; }
 export interface TeachingAssignmentPayload { course_code:string; course_title:string; year_section:string; lecture_hours:number; laboratory_hours:number; }
 export interface FacultyWorkloadPayload { faculty_profile_id:number; academic_year:string; term:string; remarks:string; assignments:TeachingAssignmentPayload[]; }
-export interface FacultyWorkload extends FacultyWorkloadPayload { id:number; faculty_name:string; department:string|null; rank:string|null; data_source?:string; total_lecture_hours:number; total_laboratory_hours:number; total_weekly_hours:number; created_at:string; assignments:(TeachingAssignmentPayload & {id:number})[]; }
+export interface FacultyWorkload extends FacultyWorkloadPayload { id:number; faculty_name:string; college:string; department:string|null; rank:string|null; data_source?:string; total_lecture_hours:number; total_laboratory_hours:number; total_weekly_hours:number; created_at:string; assignments:(TeachingAssignmentPayload & {id:number})[]; }
 export interface BackupFile { filename:string; created_at:string; size_bytes:number; }
 export interface MaintenanceStatus { database_status:"healthy"; database_file:string; database_size_bytes:number; fsdp_records:number; faculty_profiles:number; workload_records:number; backup_count:number; latest_backup_at:string|null; backup_retention:number; backups:BackupFile[]; }
 export interface BackupResult { filename:string; created_at:string; size_bytes:number; }

@@ -51,6 +51,7 @@ class FacultyWorkloadRead(BaseModel):
     data_source: str
     faculty_profile_id: int
     faculty_name: str
+    college: str
     department: str | None
     rank: str | None
     academic_year: str

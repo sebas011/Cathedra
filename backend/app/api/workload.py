@@ -28,6 +28,7 @@ def read_workload(workload: FacultyWorkload, faculty: FacultyProfile) -> Faculty
         data_source=workload.data_source,
         faculty_profile_id=faculty.id,
         faculty_name=faculty.name,
+        college=faculty.college,
         department=faculty.department,
         rank=faculty.rank,
         academic_year=workload.academic_year,
@@ -71,6 +72,7 @@ def list_workloads(
     search: str = Query(default="", max_length=200),
     academic_year: str = Query(default="", max_length=20),
     term: str = Query(default="", max_length=40),
+    college: str = Query(default="", max_length=20),
     db: Session = Depends(get_db),
 ) -> list[FacultyWorkloadRead]:
     statement = select(FacultyWorkload, FacultyProfile).join(FacultyProfile).options(*workload_options())
@@ -89,18 +91,21 @@ def list_workloads(
         statement = statement.where(FacultyWorkload.academic_year == academic_year.strip())
     if term.strip():
         statement = statement.where(FacultyWorkload.term == term.strip())
+    if college.strip():
+        statement = statement.where(FacultyProfile.college == college.strip())
     records = db.execute(statement.order_by(FacultyProfile.name, FacultyWorkload.academic_year.desc())).unique().all()
     return [read_workload(workload, scholar) for workload, scholar in records]
 
 
 @router.get("/page")
-def paged_workloads(search: str = Query(default="", max_length=200), academic_year: str = Query(default="", max_length=20), term: str = Query(default="", max_length=40), page: int = Query(default=1, ge=1), page_size: int = Query(default=50, ge=10, le=100), db: Session = Depends(get_db)) -> dict[str, object]:
+def paged_workloads(search: str = Query(default="", max_length=200), academic_year: str = Query(default="", max_length=20), term: str = Query(default="", max_length=40), college: str = Query(default="", max_length=20), page: int = Query(default=1, ge=1), page_size: int = Query(default=50, ge=10, le=100), db: Session = Depends(get_db)) -> dict[str, object]:
     statement = select(FacultyWorkload, FacultyProfile).join(FacultyProfile).options(*workload_options())
     if search.strip():
         search_term = f"%{search.strip()}%"
         statement = statement.where(or_(FacultyProfile.name.ilike(search_term), FacultyProfile.department.ilike(search_term), FacultyProfile.rank.ilike(search_term), FacultyWorkload.academic_year.ilike(search_term), FacultyWorkload.term.ilike(search_term)))
     if academic_year.strip(): statement = statement.where(FacultyWorkload.academic_year == academic_year.strip())
     if term.strip(): statement = statement.where(FacultyWorkload.term == term.strip())
+    if college.strip(): statement = statement.where(FacultyProfile.college == college.strip())
     total = db.scalar(select(__import__('sqlalchemy').func.count()).select_from(statement.with_only_columns(FacultyWorkload.id).order_by(None).subquery())) or 0
     records = db.execute(statement.order_by(FacultyProfile.name, FacultyWorkload.academic_year.desc()).offset((page - 1) * page_size).limit(page_size)).unique().all()
     return {"items": [read_workload(workload, faculty) for workload, faculty in records], "total": total, "page": page, "page_size": page_size}

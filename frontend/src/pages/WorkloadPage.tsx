@@ -6,6 +6,7 @@ import { useDebouncedValue } from "../hooks/useDebouncedValue";
 import type { FacultyWorkload } from "../types";
 
 const terms = ["First Semester", "Second Semester", "Summer"];
+const colleges = ["CAS", "COEd", "CBMA", "COE", "COF", "CIT", "CCS", "CCJ"];
 const hours = (value: number) => `${value.toFixed(1)} h`;
 const isImported = (dataSource?: string) => dataSource === "Imported from ScholarDesk";
 
@@ -21,6 +22,7 @@ export default function WorkloadPage() {
   const [search, setSearch] = useState("");
   const [academicYear, setAcademicYear] = useState("");
   const [term, setTerm] = useState("");
+  const [college, setCollege] = useState("");
   const [error, setError] = useState("");
   const [page, setPage] = useState(1); const [total, setTotal] = useState(0);
   const debouncedSearch = useDebouncedValue(search);
@@ -28,14 +30,14 @@ export default function WorkloadPage() {
   const load = async () => {
     try {
       setError("");
-      const result = await getWorkloads(debouncedSearch, academicYear, term, page); setRecords(result.items); setTotal(result.total);
+      const result = await getWorkloads(debouncedSearch, academicYear, term, college, page); setRecords(result.items); setTotal(result.total);
     } catch (caughtError) {
       setError(caughtError instanceof Error ? caughtError.message : "Unable to load workloads.");
     }
   };
 
-  useEffect(() => { setPage(1); }, [debouncedSearch, academicYear, term]);
-  useEffect(() => { void load(); }, [debouncedSearch, academicYear, term, page]);
+  useEffect(() => { setPage(1); }, [debouncedSearch, academicYear, term, college]);
+  useEffect(() => { void load(); }, [debouncedSearch, academicYear, term, college, page]);
 
   const removeRecord = async (record: FacultyWorkload) => {
     if (!confirm(`Delete the workload for ${record.faculty_name}?`)) return;
@@ -58,11 +60,11 @@ export default function WorkloadPage() {
       {error && <div className="notice error">{error}</div>}
       <section className="metric-grid four" aria-label="Workload summary"><div className="metric-card"><span>Workload records</span><strong>{records.length}</strong></div><div className="metric-card"><span>Teaching assignments</span><strong>{assignmentCount}</strong></div><div className="metric-card"><span>Lecture hours / week</span><strong>{hours(lectureHours)}</strong></div><div className="metric-card"><span>Total hours / week</span><strong>{hours(totalWeeklyHours)}</strong></div></section>
       <section className="data-card workload-table-card">
-        <div className="toolbar workload-toolbar"><div className="search-wrap"><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search faculty, department, rank, or term" aria-label="Search faculty workloads" /></div><input value={academicYear} onChange={(event) => setAcademicYear(event.target.value)} placeholder="Academic year" aria-label="Filter by academic year" /><select value={term} onChange={(event) => setTerm(event.target.value)} aria-label="Filter by term"><option value="">All terms</option>{terms.map((item) => <option key={item} value={item}>{item}</option>)}</select><button className="btn secondary" type="button" onClick={() => { setSearch(""); setAcademicYear(""); setTerm(""); }}>Reset</button></div>
+        <div className="toolbar workload-toolbar"><div className="search-wrap"><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search faculty, department, rank, or term" aria-label="Search faculty workloads" /></div><input value={academicYear} onChange={(event) => setAcademicYear(event.target.value)} placeholder="Academic year" aria-label="Filter by academic year" /><select value={term} onChange={(event) => setTerm(event.target.value)} aria-label="Filter by term"><option value="">All terms</option>{terms.map((item) => <option key={item} value={item}>{item}</option>)}</select><select value={college} onChange={(event) => setCollege(event.target.value)} aria-label="Filter by college"><option value="">All colleges</option>{colleges.map((item) => <option key={item} value={item}>{item}</option>)}</select><button className="btn secondary" type="button" onClick={() => { setSearch(""); setAcademicYear(""); setTerm(""); setCollege(""); }}>Reset</button></div>
         <div className="table-meta">{total} workloads · Page {page} of {Math.max(1, Math.ceil(total / 50))}</div>
         <div className="table-scroll"><table><thead><tr><th>Faculty member</th><th>Period</th><th>Courses</th><th>Lecture / week</th><th>Laboratory / week</th><th>Total / week</th><th>Source</th><th className="right">Actions</th></tr></thead><tbody>
-          {records.length === 0 ? <tr><td colSpan={8} className="empty-table"><strong>No workload records found.</strong><span>{search || academicYear || term ? "Try changing or clearing the filters." : "Add a weekly teaching workload to get started."}</span></td></tr> : records.map((record) => <tr key={record.id}>
-            <td><div className="person-cell"><strong>{record.faculty_name}</strong><span>{record.rank || "Faculty"}{record.department ? ` · ${record.department}` : ""}</span></div></td>
+          {records.length === 0 ? <tr><td colSpan={8} className="empty-table"><strong>No workload records found.</strong><span>{search || academicYear || term || college ? "Try changing or clearing the filters." : "Add a weekly teaching workload to get started."}</span></td></tr> : records.map((record) => <tr key={record.id}>
+            <td><div className="person-cell"><strong>{record.faculty_name}</strong><span>{record.rank || "Faculty"} · {record.college}{record.department ? ` · ${record.department}` : ""}</span></div></td>
             <td><div className="person-cell"><strong>{record.academic_year}</strong><span>{record.term}</span></div></td>
             <td>{record.assignments.length}</td><td>{hours(record.total_lecture_hours)}</td><td>{hours(record.total_laboratory_hours)}</td><td><strong>{hours(record.total_weekly_hours)}</strong></td>
             <td><SourceBadge dataSource={record.data_source} /></td>

@@ -33,6 +33,8 @@ def test_faculty_and_workload_pages_respect_filters(client) -> None:
     assert workload_page.status_code == 200
     assert workload_page.json()["total"] == 1
     assert workload_page.json()["items"][0]["faculty_name"] == "Ada Cruz"
+    college_page = client.get("/api/v1/workloads/page?college=CIT&page_size=10")
+    assert college_page.json()["total"] == 1
     summary = client.get("/api/v1/workloads/summary")
     assert summary.status_code == 200
     assert summary.json()["workloads"] == 1
