@@ -12,6 +12,7 @@ class FacultyProfileBase(BaseModel):
     rank: str = Field(min_length=1, max_length=120)
     employment_status: EmploymentStatus
     salary_grade: str | None = Field(default=None, max_length=30)
+    monthly_salary: float | None = Field(default=None, ge=0)
     college: CollegeCode
     department: str = Field(min_length=1, max_length=160)
 

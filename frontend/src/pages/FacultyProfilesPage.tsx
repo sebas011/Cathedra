@@ -6,7 +6,7 @@ import type { FacultyProfile, FacultyProfilePayload } from "../types";
 
 const colleges = ["CAS", "COEd", "CBMA", "COE", "COF", "CIT", "CCS", "CCJ"] as const;
 
-const blankProfile = (): FacultyProfilePayload => ({ name: "", rank: "", employment_status: "Full-time", salary_grade: "", college: "CAS", department: "" });
+const blankProfile = (): FacultyProfilePayload => ({ name: "", rank: "", employment_status: "Full-time", salary_grade: "", monthly_salary: null, college: "CAS", department: "" });
 const isImported = (dataSource?: string) => dataSource === "Imported from ScholarDesk";
 
 function SourceBadge({ dataSource }: { dataSource?: string }) {
@@ -45,7 +45,7 @@ export default function FacultyProfilesPage() {
   };
 
   const editProfile = (profile: FacultyProfile) => {
-    setForm({ name: profile.name, rank: profile.rank, employment_status: profile.employment_status, salary_grade: profile.salary_grade, college: profile.college, department: profile.department });
+    setForm({ name: profile.name, rank: profile.rank, employment_status: profile.employment_status, salary_grade: profile.salary_grade, monthly_salary: profile.monthly_salary, college: profile.college, department: profile.department });
     setEditing(profile.id);
     setIsEditorOpen(true);
   };
@@ -104,6 +104,7 @@ export default function FacultyProfilesPage() {
             <label>Academic rank *<input required value={form.rank} onChange={(event) => setForm({ ...form, rank: event.target.value })} /></label>
             <label>Employment status<select value={form.employment_status} onChange={(event) => setForm({ ...form, employment_status: event.target.value as FacultyProfilePayload["employment_status"] })}><option>Full-time</option><option>Part-time</option></select></label>
             <label>Salary grade<input value={form.salary_grade} onChange={(event) => setForm({ ...form, salary_grade: event.target.value })} placeholder="e.g. SG 18" /></label>
+            <label>Monthly salary equivalent<input type="number" min="0" step=".01" value={form.monthly_salary ?? ""} onChange={(event) => setForm({ ...form, monthly_salary: event.target.value ? Number(event.target.value) : null })} placeholder="e.g. 32000" /></label>
             <label>College<select value={form.college} onChange={(event) => setForm({ ...form, college: event.target.value as FacultyProfilePayload["college"] })}>{colleges.map((college) => <option key={college}>{college}</option>)}</select></label>
             <label className="span-3">Department *<input required value={form.department} onChange={(event) => setForm({ ...form, department: event.target.value })} placeholder="Department within the selected college" /></label>
           </div>
@@ -117,7 +118,7 @@ export default function FacultyProfilesPage() {
         <div className="table-scroll"><table><thead><tr><th>Faculty member</th><th>Appointment</th><th>College & department</th><th>Source</th><th className="right">Actions</th></tr></thead><tbody>
           {profiles.length === 0 ? <tr><td colSpan={5} className="empty-table"><strong>No faculty profiles found.</strong><span>{search ? "Try a broader search term." : "Add a faculty member to begin the directory."}</span></td></tr> : profiles.map((profile) => <tr key={profile.id}>
             <td><div className="person-cell"><strong>{profile.name}</strong><span>{profile.employment_status}</span></div></td>
-            <td><div className="person-cell"><strong>{profile.rank}</strong><span>{profile.salary_grade || "No salary grade"}</span></div></td>
+            <td><div className="person-cell"><strong>{profile.rank}</strong><span>{profile.salary_grade || "No salary grade"}{profile.monthly_salary !== null ? ` · ₱${profile.monthly_salary.toLocaleString("en-PH", { minimumFractionDigits: 2 })}` : ""}</span></div></td>
             <td><div className="person-cell"><strong>{profile.college}</strong><span>{profile.department}</span></div></td>
             <td><SourceBadge dataSource={profile.data_source} /></td>
             <td className="right"><div className="action-group"><button className="btn secondary" type="button" onClick={() => editProfile(profile)}>Edit</button>{canDelete && <button className="btn secondary" type="button" onClick={() => void removeProfile(profile)}>Delete</button>}</div></td>

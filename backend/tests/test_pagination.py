@@ -2,7 +2,7 @@ from test_fsdp import payload
 
 
 def faculty_payload(name: str) -> dict[str, str]:
-    return {"name": name, "rank": "Instructor I", "employment_status": "Full-time", "salary_grade": "SG 12", "college": "CIT", "department": "Information Technology"}
+    return {"name": name, "rank": "Instructor I", "employment_status": "Full-time", "salary_grade": "SG 12", "monthly_salary": 32000, "college": "CIT", "department": "Information Technology"}
 
 
 def test_fsdp_page_returns_a_bounded_result_and_total(client) -> None:
@@ -25,6 +25,7 @@ def test_faculty_and_workload_pages_respect_filters(client) -> None:
     faculty_page = client.get("/api/v1/faculty-profiles/page?search=Ada&page_size=10")
     assert faculty_page.status_code == 200
     assert faculty_page.json()["total"] == 1
+    assert faculty_page.json()["items"][0]["monthly_salary"] == 32000
 
     workload = client.post("/api/v1/workloads", json={"faculty_profile_id": first.json()["id"], "academic_year": "2026-2027", "term": "First Semester", "remarks": "", "assignments": [{"course_code": "IT101", "course_title": "Computing", "year_section": "1A", "lecture_hours": 3, "laboratory_hours": 0}]})
     assert workload.status_code == 201

@@ -168,10 +168,10 @@ def export_fsdp(db: Session = Depends(get_db)) -> Response:
 @router.get("/exports/faculty-profiles.csv")
 def export_faculty_profiles(db: Session = Depends(get_db)) -> Response:
     profiles = db.scalars(select(FacultyProfile).order_by(FacultyProfile.name, FacultyProfile.id)).all()
-    rows = [[profile.id, profile.name, profile.rank, profile.employment_status, profile.salary_grade, profile.college, profile.department, profile.data_source, profile.created_at, profile.updated_at] for profile in profiles]
+    rows = [[profile.id, profile.name, profile.rank, profile.employment_status, profile.salary_grade, profile.monthly_salary, profile.college, profile.department, profile.data_source, profile.created_at, profile.updated_at] for profile in profiles]
     return csv_download(
         "cathedra-faculty-profiles.csv",
-        ["Faculty ID", "Name", "Academic Rank", "Employment Status", "Salary Grade", "College", "Department", "Source", "Created At", "Updated At"],
+        ["Faculty ID", "Name", "Academic Rank", "Employment Status", "Salary Grade", "Monthly Salary Equivalent", "College", "Department", "Source", "Created At", "Updated At"],
         rows,
     )
 

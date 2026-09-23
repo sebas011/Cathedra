@@ -44,6 +44,9 @@ with engine.begin() as connection:
         columns = connection.execute(text(f"PRAGMA table_info({table_name})")).mappings().all()
         if columns and "data_source" not in {column["name"] for column in columns}:
             connection.execute(text(f"ALTER TABLE {table_name} ADD COLUMN data_source VARCHAR(30) NOT NULL DEFAULT 'Cathedra'"))
+    faculty_columns = connection.execute(text("PRAGMA table_info(faculty_profiles)")).mappings().all()
+    if faculty_columns and "monthly_salary" not in {column["name"] for column in faculty_columns}:
+        connection.execute(text("ALTER TABLE faculty_profiles ADD COLUMN monthly_salary FLOAT"))
     connection.execute(
         text(
             "UPDATE fsdp_participations "

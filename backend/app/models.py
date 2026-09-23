@@ -38,6 +38,7 @@ class FacultyProfile(Base):
     rank: Mapped[str] = mapped_column(String(120), nullable=False)
     employment_status: Mapped[str] = mapped_column(String(20), nullable=False)
     salary_grade: Mapped[str | None] = mapped_column(String(30))
+    monthly_salary: Mapped[float | None] = mapped_column()
     college: Mapped[str] = mapped_column(String(120), nullable=False, index=True)
     department: Mapped[str] = mapped_column(String(160), nullable=False, index=True)
     data_source: Mapped[str] = mapped_column(String(30), default="Cathedra", nullable=False)
