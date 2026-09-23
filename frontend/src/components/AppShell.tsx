@@ -36,7 +36,7 @@ export default function AppShell() {
         <div className="nav-caption">OVERVIEW</div>
         <nav className="nav-list">
           {navigation.filter((item) => !item.adminOnly || user?.role === "admin").map(({ to, label, icon: NavIcon }) => (
-            <NavLink key={to} to={to} end={to === "/"} onClick={() => setOpen(false)} className={({isActive}) => `nav-item ${isActive ? "active" : ""}`}>
+            <NavLink key={to} to={to} end={to === "/" || to === "/fsdp"} onClick={() => setOpen(false)} className={({isActive}) => `nav-item ${isActive ? "active" : ""}`}>
               <NavIcon className="nav-icon"/><span>{label}</span>
             </NavLink>
           ))}
