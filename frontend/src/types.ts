@@ -6,6 +6,7 @@ export interface ParticipationInput { program_name:string; delivering_hei:string
 export interface Scholar { id:number; name:string; age:number|null; previous_degree:string|null; missing_requirements:boolean; department:string|null; rank:string|null; personnel_type:"Faculty"|"Staff"; tenure:string|null; data_source:string; participations:(ParticipationInput & {id:number;program_id:number;name:string;delivering_hei:string|null})[]; created_at:string; updated_at:string; }
 export interface ScholarPayload { name:string; age:number|null; previous_degree:string; missing_requirements:boolean; department:string; rank:string; tenure:string; participations:ParticipationInput[]; }
 export interface FsdpSummary { total:number; ongoing:number; graduated:number; payback:number; withdrawn:number; missing_requirements:number; }
+export interface WorkloadSummary { workloads:number; assignments:number; lecture_hours:number; laboratory_hours:number; weekly_hours:number; }
 export interface FacultyProfilePayload { name:string; rank:string; employment_status:"Full-time"|"Part-time"; salary_grade:string; monthly_salary:number|null; college:College; department:string; }
 export interface FacultyProfile extends FacultyProfilePayload { id:number; data_source?:string; created_at:string; updated_at:string; }
 export interface TeachingAssignmentPayload { course_code:string; course_title:string; year_section:string; lecture_hours:number; laboratory_hours:number; }

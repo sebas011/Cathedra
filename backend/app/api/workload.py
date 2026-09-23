@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
-from sqlalchemy import or_, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session, selectinload
 
 from app.db import get_db
@@ -104,6 +104,12 @@ def paged_workloads(search: str = Query(default="", max_length=200), academic_ye
     total = db.scalar(select(__import__('sqlalchemy').func.count()).select_from(statement.with_only_columns(FacultyWorkload.id).order_by(None).subquery())) or 0
     records = db.execute(statement.order_by(FacultyProfile.name, FacultyWorkload.academic_year.desc()).offset((page - 1) * page_size).limit(page_size)).unique().all()
     return {"items": [read_workload(workload, faculty) for workload, faculty in records], "total": total, "page": page, "page_size": page_size}
+
+
+@router.get("/summary")
+def workload_summary(db: Session = Depends(get_db)) -> dict[str, float | int]:
+    totals = db.execute(select(func.count(FacultyWorkload.id), func.count(TeachingAssignment.id), func.coalesce(func.sum(TeachingAssignment.lecture_hours), 0), func.coalesce(func.sum(TeachingAssignment.laboratory_hours), 0)).select_from(FacultyWorkload).outerjoin(TeachingAssignment)).one()
+    return {"workloads": totals[0] or 0, "assignments": totals[1] or 0, "lecture_hours": float(totals[2] or 0), "laboratory_hours": float(totals[3] or 0), "weekly_hours": float((totals[2] or 0) + (totals[3] or 0))}
 
 
 @router.get("/{workload_id}", response_model=FacultyWorkloadRead)
