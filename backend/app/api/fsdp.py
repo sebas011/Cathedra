@@ -31,7 +31,7 @@ def scholar_statement(search: str, status_filter: str):
 
 
 def read_scholar(scholar: Scholar) -> ScholarRead:
-    return ScholarRead(id=scholar.id, name=scholar.name, age=scholar.age, previous_degree=scholar.previous_degree, missing_requirements=scholar.missing_requirements, department=scholar.department, rank=scholar.rank, personnel_type=personnel_type(scholar.rank), tenure=scholar.tenure, data_source=scholar.data_source, created_at=scholar.created_at, updated_at=scholar.updated_at, participations=[ParticipationRead(id=item.id, program_id=item.program_id, name=item.program.name, delivering_hei=item.program.delivering_hei, description=item.program.description, start_date=item.start_date, end_date=item.end_date, grant_type=item.grant_type, grant_other=item.grant_other, status=item.status, extension=item.extension, remarks=item.remarks) for item in scholar.participations])
+    return ScholarRead(id=scholar.id, name=scholar.name, age=scholar.age, previous_degree=scholar.previous_degree, missing_requirements=scholar.missing_requirements, department=scholar.department, rank=scholar.rank, personnel_type=personnel_type(scholar.rank), tenure=scholar.tenure, data_source=scholar.data_source, created_at=scholar.created_at, updated_at=scholar.updated_at, participations=[ParticipationRead(id=item.id, program_id=item.program_id, name=item.program.name, delivering_hei=item.program.delivering_hei, description=item.program.description, start_date=item.start_date, end_date=item.end_date, start_term=item.start_term, start_academic_year=item.start_academic_year, end_term=item.end_term, end_academic_year=item.end_academic_year, grant_type=item.grant_type, grant_other=item.grant_other, status=item.status, extension=item.extension, remarks=item.remarks) for item in scholar.participations])
 
 
 def resolve_program(db: Session, program_name: str, delivering_hei: str | None) -> Program:
@@ -52,7 +52,7 @@ def apply_payload(db: Session, scholar: Scholar, payload: ScholarCreate | Schola
     scholar.participations.clear()
     db.flush()
     for item in payload.participations:
-        scholar.participations.append(FsdpParticipation(program=resolve_program(db, item.program_name, item.delivering_hei), start_date=item.start_date, end_date=item.end_date, grant_type=item.grant_type, grant_other=item.grant_other, status=item.status, extension=item.extension, remarks=item.remarks))
+        scholar.participations.append(FsdpParticipation(program=resolve_program(db, item.program_name, item.delivering_hei), start_date=item.start_date, end_date=item.end_date, start_term=item.start_term, start_academic_year=item.start_academic_year, end_term=item.end_term, end_academic_year=item.end_academic_year, grant_type=item.grant_type, grant_other=item.grant_other, status=item.status, extension=item.extension, remarks=item.remarks))
 
 
 @router.get("/programs", response_model=list[ProgramRead])

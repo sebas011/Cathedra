@@ -2,7 +2,7 @@ export type FsdpStatus = "On Going" | "Graduated" | "Payback" | "Withdrawn";
 export type College = "CAS" | "COEd" | "CBMA" | "COE" | "COF" | "CIT" | "CCS" | "CCJ";
 
 export type GrantType = "Full Scholarship"|"Partial Scholarship"|"Dissertation Aid"|"Others";
-export interface ParticipationInput { program_name:string; delivering_hei:string; start_date:string|null; end_date:string|null; grant_type:GrantType|null; grant_other:string; status:FsdpStatus; extension:string; remarks:string; }
+export interface ParticipationInput { program_name:string; delivering_hei:string; start_date:string|null; end_date:string|null; start_term:string; start_academic_year:string; end_term:string; end_academic_year:string; grant_type:GrantType|null; grant_other:string; status:FsdpStatus; extension:string; remarks:string; }
 export interface Scholar { id:number; name:string; age:number|null; previous_degree:string|null; missing_requirements:boolean; department:string|null; rank:string|null; personnel_type:"Faculty"|"Staff"; tenure:string|null; data_source:string; participations:(ParticipationInput & {id:number;program_id:number;name:string;delivering_hei:string|null})[]; created_at:string; updated_at:string; }
 export interface ScholarPayload { name:string; age:number|null; previous_degree:string; missing_requirements:boolean; department:string; rank:string; tenure:string; participations:ParticipationInput[]; }
 export interface FsdpSummary { total:number; ongoing:number; graduated:number; payback:number; withdrawn:number; missing_requirements:number; }

@@ -153,13 +153,14 @@ def export_fsdp(db: Session = Depends(get_db)) -> Response:
             continue
         for participation in scholar.participations:
             rows.append(base + [
-                participation.program.name, participation.program.delivering_hei, participation.start_date,
-                participation.end_date, participation.grant_type, participation.grant_other,
+                participation.program.name, participation.program.delivering_hei, participation.start_term,
+                participation.start_academic_year, participation.end_term, participation.end_academic_year,
+                participation.start_date, participation.end_date, participation.grant_type, participation.grant_other,
                 participation.status, participation.extension, participation.remarks,
             ])
     return csv_download(
         "cathedra-fsdp.csv",
-        ["Scholar ID", "Name", "Age", "Previous Degree", "Missing Requirements", "Department", "Rank", "Tenure", "Source", "Created At", "Updated At", "Program", "Delivering HEI", "Start Date", "End Date", "Grant Type", "Grant Other", "Status", "Extension", "Remarks"],
+        ["Scholar ID", "Name", "Age", "Previous Degree", "Missing Requirements", "Department", "Rank", "Tenure", "Source", "Created At", "Updated At", "Program", "Delivering HEI", "Start Term", "Start Academic Year", "End Term", "End Academic Year", "Legacy Start Date", "Legacy End Date", "Grant Type", "Grant Other", "Status", "Extension", "Remarks"],
         rows,
     )
 

@@ -42,3 +42,13 @@ def test_age_must_be_in_the_allowed_range(client) -> None:
     invalid = payload("Maria Santos")
     invalid["age"] = 17
     assert client.post("/api/v1/fsdp", json=invalid).status_code == 422
+
+
+def test_grant_term_and_academic_year_are_saved(client) -> None:
+    record = payload("Term Based Scholar")
+    record["participations"][0].update({"start_term": "1st Term", "start_academic_year": "2024-2025", "end_term": "2nd Term", "end_academic_year": "2025-2026"})
+    created = client.post("/api/v1/fsdp", json=record)
+    assert created.status_code == 201
+    grant = created.json()["participations"][0]
+    assert grant["start_term"] == "1st Term"
+    assert grant["end_academic_year"] == "2025-2026"

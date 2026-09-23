@@ -37,6 +37,9 @@ with engine.begin() as connection:
         connection.execute(text("ALTER TABLE fsdp_participations ADD COLUMN grant_standardized_at DATETIME"))
     if participation_columns and "grant_standardization_note" not in existing:
         connection.execute(text("ALTER TABLE fsdp_participations ADD COLUMN grant_standardization_note VARCHAR(500)"))
+    for column_name, column_type in (("start_term", "VARCHAR(50)"), ("start_academic_year", "VARCHAR(20)"), ("end_term", "VARCHAR(50)"), ("end_academic_year", "VARCHAR(20)")):
+        if participation_columns and column_name not in existing:
+            connection.execute(text(f"ALTER TABLE fsdp_participations ADD COLUMN {column_name} {column_type}"))
     for table_name in ("scholars", "faculty_profiles", "faculty_workloads"):
         columns = connection.execute(text(f"PRAGMA table_info({table_name})")).mappings().all()
         if columns and "data_source" not in {column["name"] for column in columns}:
